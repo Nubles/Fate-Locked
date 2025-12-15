@@ -19,15 +19,17 @@ const ActionPanel = ({ onRoll }) => {
     <Card title="Earn Keys" className="mb-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Quest Section */}
-        <div className="space-y-2">
+        <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
           <div className="flex items-center gap-2 mb-2 text-osrs-gold">
             <Scroll size={20} />
             <span className="font-bold">Quests</span>
           </div>
-          <div className="grid grid-cols-1 gap-2">
-            <Button onClick={() => onRoll('QUEST', 'short')}>Short (25%)</Button>
-            <Button onClick={() => onRoll('QUEST', 'long')}>Long (50%)</Button>
-            <Button onClick={() => onRoll('QUEST', 'grandmaster')}>Grandmaster (100%)</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => onRoll('QUEST', 'novice')} className="flex-1 text-xs">Novice (20%)</Button>
+            <Button onClick={() => onRoll('QUEST', 'intermediate')} className="flex-1 text-xs">Interm. (35%)</Button>
+            <Button onClick={() => onRoll('QUEST', 'experienced')} className="flex-1 text-xs">Exper. (50%)</Button>
+            <Button onClick={() => onRoll('QUEST', 'master')} className="flex-1 text-xs">Master (80%)</Button>
+            <Button onClick={() => onRoll('QUEST', 'grandmaster')} className="w-full text-xs">Grandmaster (100%)</Button>
           </div>
         </div>
 
