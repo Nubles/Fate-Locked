@@ -13,10 +13,27 @@ const INITIAL_SKILLS = [
   'Smithing', 'Fishing', 'Cooking', 'Firemaking', 'Woodcutting', 'Farming', 'Hitpoints', 'Sailing'
 ];
 
-const INITIAL_REGIONS = [
-  'Misthalin', 'Asgarnia', 'Kharidian Desert', 'Kandarin', 'Morytania', 'Fremennik',
-  'Tirannwn', 'Wilderness', 'Kourend', 'Karamja'
-];
+const REGION_AREAS = {
+  'Misthalin': ['Lumbridge', 'Varrock', 'Draynor Village', 'Digsite', 'Paterdomus'],
+  'Asgarnia': ['Falador', 'Port Sarim', 'Rimmington', 'Taverley', 'Burthorpe'],
+  'Kharidian Desert': ['Al Kharid', 'Pollnivneach', 'Nardah', 'Sophanem', 'Mage Training Arena'],
+  'Kandarin': ['East Ardougne', 'West Ardougne', 'Catherby', 'Seers Village', 'Yanille', 'Gnome Stronghold', 'Feldip Hills'],
+  'Morytania': ['Canifis', 'Port Phasmatys', 'Barrows', 'Meiyerditch', 'Mos Le\'Harmless'],
+  'Fremennik': ['Rellekka', 'Jatizso & Neitiznot', 'Miscellania & Etceteria', 'Lunar Isle', 'Waterbirth Island'],
+  'Tirannwn': ['Isafdar', 'Lletya', 'Prifddinas', 'Zul-Andra'],
+  'Wilderness': ['Ferox Enclave', 'Low Wilderness', 'Deep Wilderness', 'Mage Arena', 'Resource Area'],
+  'Kourend': ['Hosidius', 'Shayzien', 'Arceuus', 'Lovakengj', 'Piscarilius', 'Farming Guild', 'Mount Karuulm'],
+  'Karamja': ['Musa Point', 'Brimhaven', 'Tai Bwo Wannai', 'Shilo Village']
+};
+
+// Flatten regions into a list of unlockable areas
+const INITIAL_AREAS_FLAT = Object.entries(REGION_AREAS).flatMap(([region, areas]) =>
+  areas.map(name => ({
+    name,
+    region,
+    isUnlocked: region === 'Misthalin' // Default unlocked region
+  }))
+);
 
 // Helper to init state with locked/unlocked
 const createInitialState = (items, unlockedItems = []) => {
@@ -34,7 +51,7 @@ const createInitialSkillLevels = () => {
   return levels;
 };
 
-const STORAGE_KEY = 'osrs-fate-locked-save-v1';
+const STORAGE_KEY = 'osrs-fate-locked-save-v2';
 
 export const useGameLogic = () => {
   // --- State ---
@@ -43,7 +60,8 @@ export const useGameLogic = () => {
 
   const [gearSlots, setGearSlots] = useState(() => createInitialState(INITIAL_GEAR_SLOTS));
   const [skills, setSkills] = useState(() => createInitialState(INITIAL_SKILLS));
-  const [regions, setRegions] = useState(() => createInitialState(INITIAL_REGIONS, ['Misthalin']));
+  // Regions is now a list of areas
+  const [regions, setRegions] = useState(INITIAL_AREAS_FLAT);
 
   // New state for API Sync
   const [rsn, setRsn] = useState("");
@@ -62,7 +80,12 @@ export const useGameLogic = () => {
         setFatePoints(parsed.fatePoints ?? 0);
         setGearSlots(parsed.gearSlots ?? createInitialState(INITIAL_GEAR_SLOTS));
         setSkills(parsed.skills ?? createInitialState(INITIAL_SKILLS));
-        setRegions(parsed.regions ?? createInitialState(INITIAL_REGIONS, ['Misthalin']));
+        // Ensure robustness if saved regions format differs, but v2 key change protects us mostly
+        if (parsed.regions && Array.isArray(parsed.regions) && parsed.regions[0]?.region) {
+            setRegions(parsed.regions);
+        } else {
+            setRegions(INITIAL_AREAS_FLAT);
+        }
 
         // Load sync data or defaults
         setRsn(parsed.rsn ?? "");
@@ -201,7 +224,7 @@ export const useGameLogic = () => {
       origin: { y: 0.6 }
     });
 
-    return { success: true, message: `Unlocked: ${itemToUnlock.name}`, item: itemToUnlock.name };
+    return { success: true, message: `Unlocked: ${itemToUnlock.name} (${itemToUnlock.region || ''})`, item: itemToUnlock.name };
   };
 
   const resetProgress = () => {
@@ -210,7 +233,7 @@ export const useGameLogic = () => {
       setFatePoints(0);
       setGearSlots(createInitialState(INITIAL_GEAR_SLOTS));
       setSkills(createInitialState(INITIAL_SKILLS));
-      setRegions(createInitialState(INITIAL_REGIONS, ['Misthalin']));
+      setRegions(INITIAL_AREAS_FLAT);
       setRsn("");
       setSkillLevels(createInitialSkillLevels());
       setClogScore(0);
