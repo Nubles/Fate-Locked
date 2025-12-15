@@ -1,84 +1,8 @@
 import React from 'react';
 import { Card } from './ui/BaseComponents';
-import {
-  Shirt, Book, Map,
-  Sword, Heart, Pickaxe,
-  Dumbbell, Footprints, Anvil,
-  Shield, FlaskConical, Fish,
-  Crosshair, VenetianMask, CookingPot,
-  Star, Gem, Flame,
-  Sparkles, Feather, Trees,
-  Orbit, Skull, Sprout,
-  Hammer, PawPrint, Anchor
-} from 'lucide-react';
+import { Shirt, Book, Map } from 'lucide-react';
 
-// OSRS Skill Tab Order (Row by Row)
-const SKILL_DISPLAY_ORDER = [
-  'Attack', 'Hitpoints', 'Mining',
-  'Strength', 'Agility', 'Smithing',
-  'Defence', 'Herblore', 'Fishing',
-  'Ranged', 'Thieving', 'Cooking',
-  'Prayer', 'Crafting', 'Firemaking',
-  'Magic', 'Fletching', 'Woodcutting',
-  'Runecraft', 'Slayer', 'Farming',
-  'Construction', 'Hunter', 'Sailing'
-];
-
-const SKILL_ICONS = {
-  Attack: Sword,
-  Hitpoints: Heart,
-  Mining: Pickaxe,
-  Strength: Dumbbell,
-  Agility: Footprints,
-  Smithing: Anvil, // Fallback: Hammer
-  Defence: Shield,
-  Herblore: FlaskConical,
-  Fishing: Fish,
-  Ranged: Crosshair,
-  Thieving: VenetianMask,
-  Cooking: CookingPot,
-  Prayer: Star,
-  Crafting: Gem,
-  Firemaking: Flame,
-  Magic: Sparkles,
-  Fletching: Feather,
-  Woodcutting: Trees,
-  Runecraft: Orbit,
-  Slayer: Skull,
-  Farming: Sprout,
-  Construction: Hammer,
-  Hunter: PawPrint,
-  Sailing: Anchor
-};
-
-const SKILL_COLORS = {
-  Attack: '#9ca3af', // Silver/Grey
-  Hitpoints: '#ef4444', // Red
-  Mining: '#a8a29e', // Stone
-  Strength: '#16a34a', // Green
-  Agility: '#3b82f6', // Blue
-  Smithing: '#9ca3af', // Grey
-  Defence: '#60a5fa', // Blue
-  Herblore: '#22c55e', // Green
-  Fishing: '#93c5fd', // Light Blue
-  Ranged: '#15803d', // Dark Green
-  Thieving: '#a855f7', // Purple
-  Cooking: '#7f1d1d', // Dark Red
-  Prayer: '#fef08a', // Pale Yellow
-  Crafting: '#b45309', // Brown
-  Firemaking: '#f97316', // Orange
-  Magic: '#2563eb', // Blue
-  Fletching: '#0d9488', // Teal
-  Woodcutting: '#16a34a', // Green
-  Runecraft: '#eab308', // Yellow
-  Slayer: '#e4e4e7', // Zinc
-  Farming: '#22c55e', // Green
-  Construction: '#fdba74', // Orange/Tan
-  Hunter: '#92400e', // Brown
-  Sailing: '#1e40af' // Dark Blue
-};
-
-const StatusGrid = ({ items, type, skillLevels }) => {
+const StatusGrid = ({ items, type }) => {
   if (!items || !Array.isArray(items)) {
     return <div className="text-red-500 text-xs p-2">Error: No data available</div>;
   }
@@ -104,58 +28,22 @@ const StatusGrid = ({ items, type, skillLevels }) => {
   }
 
   if (type === 'SKILLS') {
-    // Calculate Total Level
-    const totalLevel = skillLevels
-      ? Object.values(skillLevels).reduce((a, b) => a + b, 0)
-      : 0;
-
     return (
-      <div className="flex flex-col gap-2">
-        <div className="grid grid-cols-3 bg-[#383838] p-1 gap-1 border border-[#5a5a5a] rounded-sm">
-          {SKILL_DISPLAY_ORDER.map((skillName) => {
-            const skillData = items.find(i => i.name === skillName);
-            const level = skillLevels ? skillLevels[skillName] : 1;
-            const Icon = SKILL_ICONS[skillName] || Book;
-            const iconColor = SKILL_COLORS[skillName] || '#d1d5db';
-
-            if (!skillData) return null;
-
-            // Visual state based on locked/unlocked
-            const isUnlocked = skillData.isUnlocked;
-
-            return (
-              <div
-                key={skillName}
-                className={`
-                  flex items-center gap-1 p-1 h-8 bg-[#1e1e1e] border border-[#5a5a5a] rounded-sm select-none relative
-                  ${!isUnlocked ? 'opacity-50' : ''}
-                `}
-                title={skillName}
-              >
-                {/* Icon */}
-                <div className="w-5 h-5 flex items-center justify-center" style={{ color: iconColor }}>
-                  <Icon size={16} />
-                </div>
-
-                {/* Level Text (Yellow) */}
-                <div className="flex-1 text-right font-sans text-osrs-gold text-[10px] leading-tight font-bold shadow-black drop-shadow-md">
-                   {level}/{level}
-                </div>
-
-                {/* Overlay for locked status */}
-                {!isUnlocked && (
-                    <div className="absolute inset-0 bg-red-900/20 pointer-events-none" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Total Level Bar */}
-        <div className="bg-[#101010] border border-[#5a5a5a] rounded-sm p-1 flex justify-center gap-2 items-center px-3">
-             <span className="text-osrs-gold text-xs font-bold">Total level:</span>
-             <span className="text-osrs-gold text-xs font-bold">{totalLevel}</span>
-        </div>
+      <div className="grid grid-cols-3 gap-2">
+        {items.map((item, idx) => (
+          <div
+            key={item.name || idx}
+            className={`
+              flex flex-col items-center justify-center p-1 rounded border text-[10px] sm:text-xs font-bold text-center break-words h-12
+              ${item.isUnlocked
+                ? 'bg-green-900/30 border-green-500 text-green-100'
+                : 'bg-red-900/30 border-red-900/50 text-red-400 opacity-60'}
+            `}
+            title={item.name}
+          >
+            <span className="w-full">{item.name}</span>
+          </div>
+        ))}
       </div>
     );
   }
@@ -198,7 +86,7 @@ const StatusGrid = ({ items, type, skillLevels }) => {
   return null;
 };
 
-const UnlockTracker = ({ gearSlots, skills, regions, skillLevels }) => {
+const UnlockTracker = ({ gearSlots, skills, regions }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* Gear */}
@@ -222,7 +110,7 @@ const UnlockTracker = ({ gearSlots, skills, regions, skillLevels }) => {
              {Array.isArray(skills) ? `${skills.filter(i => i.isUnlocked).length}/${skills.length}` : '0/0'}
           </span>
         </div>
-        <StatusGrid items={skills} type="SKILLS" skillLevels={skillLevels} />
+        <StatusGrid items={skills} type="SKILLS" />
       </Card>
 
       {/* Regions */}
