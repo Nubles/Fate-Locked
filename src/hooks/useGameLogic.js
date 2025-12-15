@@ -10,7 +10,7 @@ const INITIAL_GEAR_SLOTS = [
 const INITIAL_SKILLS = [
   'Attack', 'Strength', 'Defence', 'Ranged', 'Prayer', 'Magic', 'Runecraft', 'Construction',
   'Agility', 'Herblore', 'Thieving', 'Crafting', 'Fletching', 'Slayer', 'Hunter', 'Mining',
-  'Smithing', 'Fishing', 'Cooking', 'Firemaking', 'Woodcutting', 'Farming', 'Hitpoints'
+  'Smithing', 'Fishing', 'Cooking', 'Firemaking', 'Woodcutting', 'Farming', 'Hitpoints', 'Sailing'
 ];
 
 const INITIAL_REGIONS = [
