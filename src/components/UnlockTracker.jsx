@@ -3,12 +3,16 @@ import { Card } from './ui/BaseComponents';
 import { Shirt, Book, Map } from 'lucide-react';
 
 const StatusGrid = ({ items, type }) => {
+  if (!items || !Array.isArray(items)) {
+    return <div className="text-red-500 text-xs p-2">Error: No data available</div>;
+  }
+
   if (type === 'GEAR') {
     return (
       <div className="grid grid-cols-3 gap-2">
-        {items.map((item) => (
+        {items.map((item, idx) => (
           <div
-            key={item.name}
+            key={item.name || idx}
             className={`
               aspect-square flex flex-col items-center justify-center p-2 rounded border-2 text-center text-xs font-bold transition-all
               ${item.isUnlocked
@@ -26,9 +30,9 @@ const StatusGrid = ({ items, type }) => {
   if (type === 'SKILLS') {
     return (
       <div className="grid grid-cols-3 gap-2">
-        {items.map((item) => (
+        {items.map((item, idx) => (
           <div
-            key={item.name}
+            key={item.name || idx}
             className={`
               flex flex-col items-center justify-center p-1 rounded border text-[10px] sm:text-xs font-bold text-center break-words h-12
               ${item.isUnlocked
@@ -53,18 +57,15 @@ const StatusGrid = ({ items, type }) => {
       return acc;
     }, {});
 
-    // Sort regions slightly? Or keep order of insertion (which is effectively order of keys in REGION_AREAS)
-    // Object.entries order is preserved for non-integer keys in JS usually.
-
     return (
-        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
         {Object.entries(grouped).map(([regionName, areaItems]) => (
             <div key={regionName} className="bg-black/20 p-2 rounded border border-zinc-700/50">
             <div className="text-[10px] text-zinc-400 uppercase font-bold mb-2 ml-1 tracking-wider">{regionName}</div>
             <div className="flex flex-wrap gap-2">
-                {areaItems.map((item) => (
+                {areaItems.map((item, idx) => (
                 <div
-                    key={item.name}
+                    key={item.name || idx}
                     className={`
                     px-2 py-1 rounded text-xs font-bold border transition-colors
                     ${item.isUnlocked
@@ -81,6 +82,8 @@ const StatusGrid = ({ items, type }) => {
         </div>
     );
   }
+
+  return null;
 };
 
 const UnlockTracker = ({ gearSlots, skills, regions }) => {
@@ -91,7 +94,9 @@ const UnlockTracker = ({ gearSlots, skills, regions }) => {
         <div className="flex items-center gap-2 mb-4 text-osrs-gold border-b border-gray-600 pb-2">
           <Shirt size={20} />
           <h3 className="text-lg font-bold">Gear Slots</h3>
-          <span className="ml-auto text-xs text-gray-400">{gearSlots.filter(i => i.isUnlocked).length}/{gearSlots.length}</span>
+          <span className="ml-auto text-xs text-gray-400">
+            {Array.isArray(gearSlots) ? `${gearSlots.filter(i => i.isUnlocked).length}/${gearSlots.length}` : '0/0'}
+          </span>
         </div>
         <StatusGrid items={gearSlots} type="GEAR" />
       </Card>
@@ -101,7 +106,9 @@ const UnlockTracker = ({ gearSlots, skills, regions }) => {
         <div className="flex items-center gap-2 mb-4 text-osrs-gold border-b border-gray-600 pb-2">
           <Book size={20} />
           <h3 className="text-lg font-bold">Skills</h3>
-          <span className="ml-auto text-xs text-gray-400">{skills.filter(i => i.isUnlocked).length}/{skills.length}</span>
+          <span className="ml-auto text-xs text-gray-400">
+             {Array.isArray(skills) ? `${skills.filter(i => i.isUnlocked).length}/${skills.length}` : '0/0'}
+          </span>
         </div>
         <StatusGrid items={skills} type="SKILLS" />
       </Card>
@@ -111,7 +118,9 @@ const UnlockTracker = ({ gearSlots, skills, regions }) => {
         <div className="flex items-center gap-2 mb-4 text-osrs-gold border-b border-gray-600 pb-2">
           <Map size={20} />
           <h3 className="text-lg font-bold">Regions</h3>
-          <span className="ml-auto text-xs text-gray-400">{regions.filter(i => i.isUnlocked).length}/{regions.length}</span>
+          <span className="ml-auto text-xs text-gray-400">
+             {Array.isArray(regions) ? `${regions.filter(i => i.isUnlocked).length}/${regions.length}` : '0/0'}
+          </span>
         </div>
         <StatusGrid items={regions} type="REGIONS" />
       </Card>
