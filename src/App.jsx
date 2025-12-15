@@ -3,6 +3,7 @@ import Header from './components/Header';
 import ActionPanel from './components/ActionPanel';
 import UnlockTracker from './components/UnlockTracker';
 import GachaModal from './components/GachaModal';
+import SyncModal from './components/SyncModal';
 import { Button } from './components/ui/BaseComponents';
 import { Toast } from './components/ui/Toast';
 import { useGameLogic } from './hooks/useGameLogic';
@@ -15,12 +16,18 @@ function App() {
     gearSlots,
     skills,
     regions,
+    rsn,
+    setRsn,
     rollForKey,
     unlockItem,
-    resetProgress
+    resetProgress,
+    fetchStats,
+    calculateSyncDiff,
+    processSync
   } = useGameLogic();
 
   const [isGachaOpen, setIsGachaOpen] = useState(false);
+  const [isSyncOpen, setIsSyncOpen] = useState(false);
   const [toast, setToast] = useState({ visible: false, message: '', type: 'info' });
 
   const showToast = (message, type = 'info') => {
@@ -37,9 +44,22 @@ function App() {
     showToast(result.message, result.success ? 'success' : 'error');
   };
 
+  const handleProcessSync = (diff) => {
+      const result = processSync(diff);
+      // Wait a bit for modal to show success, then maybe toast?
+      // Or just let modal handle it.
+      // But we can show toast after modal closes or immediately.
+      showToast(result.message, 'success');
+      return result;
+  };
+
   return (
     <div className="min-h-screen bg-osrs-bg text-osrs-text pb-20 font-sans selection:bg-osrs-gold selection:text-black">
-      <Header keyCount={keyCount} fatePoints={fatePoints} />
+      <Header
+        keyCount={keyCount}
+        fatePoints={fatePoints}
+        onOpenSync={() => setIsSyncOpen(true)}
+      />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
 
@@ -84,6 +104,16 @@ function App() {
         onClose={() => setIsGachaOpen(false)}
         onUnlock={handleUnlock}
         keyCount={keyCount}
+      />
+
+      <SyncModal
+        isOpen={isSyncOpen}
+        onClose={() => setIsSyncOpen(false)}
+        rsn={rsn}
+        setRsn={setRsn}
+        fetchStats={fetchStats}
+        calculateSyncDiff={calculateSyncDiff}
+        processSync={handleProcessSync}
       />
 
       <Toast
