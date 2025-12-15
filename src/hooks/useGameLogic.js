@@ -379,7 +379,6 @@ export const useGameLogic = () => {
     resetProgress,
     fetchStats,
     calculateSyncDiff,
-    processSync,
-    skillLevels
+    processSync
   };
 };

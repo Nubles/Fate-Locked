@@ -23,8 +23,7 @@ function App() {
     resetProgress,
     fetchStats,
     calculateSyncDiff,
-    processSync,
-    skillLevels
+    processSync
   } = useGameLogic();
 
   const [isGachaOpen, setIsGachaOpen] = useState(false);
@@ -84,7 +83,7 @@ function App() {
 
         {/* Unlocks Grid */}
         <section>
-             <UnlockTracker gearSlots={gearSlots} skills={skills} regions={regions} skillLevels={skillLevels} />
+             <UnlockTracker gearSlots={gearSlots} skills={skills} regions={regions} />
         </section>
 
         {/* Reset (Bottom) */}
