@@ -107,8 +107,10 @@ export const useGameLogic = () => {
 
     switch (activityType) {
       case 'QUEST':
-        if (value === 'short') chance = 25;
-        else if (value === 'long') chance = 50;
+        if (value === 'novice') chance = 20;
+        else if (value === 'intermediate') chance = 35;
+        else if (value === 'experienced') chance = 50;
+        else if (value === 'master') chance = 80;
         else if (value === 'grandmaster') chance = 100;
         break;
       case 'COMBAT_ACHIEVEMENT':

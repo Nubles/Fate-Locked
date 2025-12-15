@@ -29,19 +29,19 @@ const StatusGrid = ({ items, type }) => {
 
   if (type === 'SKILLS') {
     return (
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {items.map((item) => (
-            <div
+          <div
             key={item.name}
             className={`
-              flex items-center justify-center p-2 rounded border text-[10px] sm:text-xs font-bold text-center break-words leading-tight
+              flex flex-col items-center justify-center p-1 rounded border text-[10px] sm:text-xs font-bold text-center break-words h-12
               ${item.isUnlocked
                 ? 'bg-green-900/30 border-green-500 text-green-100'
                 : 'bg-red-900/30 border-red-900/50 text-red-400 opacity-60'}
             `}
             title={item.name}
           >
-            {item.name}
+            <span className="w-full">{item.name}</span>
           </div>
         ))}
       </div>
