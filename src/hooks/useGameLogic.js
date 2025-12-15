@@ -26,6 +26,14 @@ const createInitialState = (items, unlockedItems = []) => {
   }));
 };
 
+const createInitialSkillLevels = () => {
+  const levels = {};
+  INITIAL_SKILLS.forEach(skill => {
+    levels[skill] = skill === 'Hitpoints' ? 10 : 1;
+  });
+  return levels;
+};
+
 const STORAGE_KEY = 'osrs-fate-locked-save-v1';
 
 export const useGameLogic = () => {
@@ -36,6 +44,11 @@ export const useGameLogic = () => {
   const [gearSlots, setGearSlots] = useState(() => createInitialState(INITIAL_GEAR_SLOTS));
   const [skills, setSkills] = useState(() => createInitialState(INITIAL_SKILLS));
   const [regions, setRegions] = useState(() => createInitialState(INITIAL_REGIONS, ['Misthalin']));
+
+  // New state for API Sync
+  const [rsn, setRsn] = useState("");
+  const [skillLevels, setSkillLevels] = useState(() => createInitialSkillLevels());
+  const [clogScore, setClogScore] = useState(0);
 
   // --- Persistence ---
 
@@ -50,6 +63,11 @@ export const useGameLogic = () => {
         setGearSlots(parsed.gearSlots ?? createInitialState(INITIAL_GEAR_SLOTS));
         setSkills(parsed.skills ?? createInitialState(INITIAL_SKILLS));
         setRegions(parsed.regions ?? createInitialState(INITIAL_REGIONS, ['Misthalin']));
+
+        // Load sync data or defaults
+        setRsn(parsed.rsn ?? "");
+        setSkillLevels(parsed.skillLevels ?? createInitialSkillLevels());
+        setClogScore(parsed.clogScore ?? 0);
       } catch (e) {
         console.error("Failed to load save", e);
       }
@@ -63,10 +81,13 @@ export const useGameLogic = () => {
       fatePoints,
       gearSlots,
       skills,
-      regions
+      regions,
+      rsn,
+      skillLevels,
+      clogScore
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [keyCount, fatePoints, gearSlots, skills, regions]);
+  }, [keyCount, fatePoints, gearSlots, skills, regions, rsn, skillLevels, clogScore]);
 
 
   // --- Logic ---
@@ -183,7 +204,6 @@ export const useGameLogic = () => {
     return { success: true, message: `Unlocked: ${itemToUnlock.name}`, item: itemToUnlock.name };
   };
 
-  // Reset function (optional, useful for dev or user reset)
   const resetProgress = () => {
     if (confirm("Are you sure you want to reset all progress? This cannot be undone.")) {
       setKeyCount(0);
@@ -191,7 +211,136 @@ export const useGameLogic = () => {
       setGearSlots(createInitialState(INITIAL_GEAR_SLOTS));
       setSkills(createInitialState(INITIAL_SKILLS));
       setRegions(createInitialState(INITIAL_REGIONS, ['Misthalin']));
+      setRsn("");
+      setSkillLevels(createInitialSkillLevels());
+      setClogScore(0);
     }
+  };
+
+  // --- API Sync Logic ---
+
+  const fetchStats = async (username) => {
+    if (!username) return { success: false, message: "Please enter a username" };
+    try {
+      // Using WiseOldMan API
+      const response = await fetch(`https://api.wiseoldman.net/v2/players/${username}`);
+      if (!response.ok) {
+        throw new Error("Player not found or API error");
+      }
+      const data = await response.json();
+      return { success: true, data: data };
+    } catch (err) {
+      return { success: false, message: err.message || "Failed to fetch stats" };
+    }
+  };
+
+  const calculateSyncDiff = (apiData) => {
+    const changes = {
+      levels: {},
+      clog: 0
+    };
+
+    // Check Skills
+    if (apiData.latestSnapshot && apiData.latestSnapshot.data && apiData.latestSnapshot.data.skills) {
+      const apiSkills = apiData.latestSnapshot.data.skills;
+
+      INITIAL_SKILLS.forEach(skillName => {
+        // WiseOldMan keys are lowercase, usually. e.g. 'attack'
+        // But 'Sailing' might be tricky if not yet fully standard, currently it is 'sailing' in WOM if active
+        // Or Runecraft might be 'runecrafting'
+        let apiSkillKey = skillName.toLowerCase();
+        if (apiSkillKey === 'runecraft') apiSkillKey = 'runecrafting';
+
+        if (apiSkills[apiSkillKey]) {
+            const apiLevel = apiSkills[apiSkillKey].level;
+            const currentLevel = skillLevels[skillName];
+
+            if (apiLevel > currentLevel) {
+                changes.levels[skillName] = { from: currentLevel, to: apiLevel };
+            }
+        }
+      });
+
+      // Check Collection Log
+      // WOM: data.latestSnapshot.data.activities.collections_logged.score
+      // Note: older snapshots might not have it.
+      if (apiData.latestSnapshot.data.activities && apiData.latestSnapshot.data.activities.collections_logged) {
+        const apiClog = apiData.latestSnapshot.data.activities.collections_logged.score;
+        if (apiClog > clogScore && apiClog > -1) {
+            changes.clog = apiClog - clogScore;
+            changes.newClogScore = apiClog;
+        }
+      }
+    }
+
+    return changes;
+  };
+
+  const processSync = (changes) => {
+    let keysWon = 0;
+    let currentFate = fatePoints;
+    let newSkillLevels = { ...skillLevels };
+    let newClogScore = clogScore;
+
+    // Process Levels
+    Object.entries(changes.levels).forEach(([skillName, { from, to }]) => {
+      for (let lvl = from + 1; lvl <= to; lvl++) {
+        // Roll for Level Up (Chance = lvl%)
+        const chance = Math.min(Math.max(lvl, 1), 99);
+        const roll = Math.random() * 100;
+
+        if (roll <= chance) {
+          keysWon++;
+          currentFate = 0;
+        } else {
+          currentFate++;
+          if (currentFate >= 50) {
+            keysWon++;
+            currentFate = 0;
+          }
+        }
+      }
+      newSkillLevels[skillName] = to;
+    });
+
+    // Process Clog
+    if (changes.clog > 0) {
+        for (let i = 0; i < changes.clog; i++) {
+            // Chance fixed 5%
+            const roll = Math.random() * 100;
+            if (roll <= 5) {
+                keysWon++;
+                currentFate = 0;
+            } else {
+                currentFate++;
+                if (currentFate >= 50) {
+                    keysWon++;
+                    currentFate = 0;
+                }
+            }
+        }
+        newClogScore = changes.newClogScore;
+    }
+
+    // Apply updates
+    setKeyCount(prev => prev + keysWon);
+    setFatePoints(currentFate);
+    setSkillLevels(newSkillLevels);
+    if (changes.clog > 0) setClogScore(newClogScore);
+
+    if (keysWon > 0) {
+        confetti({
+            particleCount: 200,
+            spread: 120,
+            origin: { y: 0.6 },
+            colors: ['#ffff00', '#ffd700']
+        });
+    }
+
+    return {
+        success: true,
+        message: `Sync Complete! Won ${keysWon} Keys. Fate Points: ${currentFate}.`
+    };
   };
 
   return {
@@ -200,8 +349,13 @@ export const useGameLogic = () => {
     gearSlots,
     skills,
     regions,
+    rsn,
+    setRsn,
     rollForKey,
     unlockItem,
-    resetProgress
+    resetProgress,
+    fetchStats,
+    calculateSyncDiff,
+    processSync
   };
 };
