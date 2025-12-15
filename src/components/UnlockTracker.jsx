@@ -4,9 +4,6 @@ import { Shirt, Book, Map } from 'lucide-react';
 
 const StatusGrid = ({ items, type }) => {
   if (type === 'GEAR') {
-    // Gear specific layout if needed, or just a grid
-    // The prompt asks for "visualize as a grid representing OSR inventory slots"
-    // Since we just have a list of names, we'll do a grid.
     return (
       <div className="grid grid-cols-3 gap-2">
         {items.map((item) => (
@@ -19,7 +16,6 @@ const StatusGrid = ({ items, type }) => {
                 : 'bg-red-900/30 border-red-900/50 text-red-400 opacity-60'}
             `}
           >
-            {/* Ideally icons here, but names for now */}
             <span>{item.name}</span>
           </div>
         ))}
@@ -49,22 +45,40 @@ const StatusGrid = ({ items, type }) => {
   }
 
   if (type === 'REGIONS') {
+    // Group items by region for better display
+    const grouped = items.reduce((acc, item) => {
+      const region = item.region || 'Misc';
+      if (!acc[region]) acc[region] = [];
+      acc[region].push(item);
+      return acc;
+    }, {});
+
+    // Sort regions slightly? Or keep order of insertion (which is effectively order of keys in REGION_AREAS)
+    // Object.entries order is preserved for non-integer keys in JS usually.
+
     return (
-        <div className="flex flex-wrap gap-2">
-        {items.map((item) => (
-            <div
-            key={item.name}
-            className={`
-              px-3 py-1 rounded-full border text-sm font-bold
-              ${item.isUnlocked
-                ? 'bg-green-900/30 border-green-500 text-green-100'
-                : 'bg-red-900/30 border-red-900/50 text-red-400 opacity-60'}
-            `}
-          >
-            {item.name}
-          </div>
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+        {Object.entries(grouped).map(([regionName, areaItems]) => (
+            <div key={regionName} className="bg-black/20 p-2 rounded border border-zinc-700/50">
+            <div className="text-[10px] text-zinc-400 uppercase font-bold mb-2 ml-1 tracking-wider">{regionName}</div>
+            <div className="flex flex-wrap gap-2">
+                {areaItems.map((item) => (
+                <div
+                    key={item.name}
+                    className={`
+                    px-2 py-1 rounded text-xs font-bold border transition-colors
+                    ${item.isUnlocked
+                        ? 'bg-green-900/40 border-green-600 text-green-200 shadow-[0_0_5px_rgba(34,197,94,0.2)]'
+                        : 'bg-red-900/20 border-red-900/30 text-red-500 opacity-50'}
+                    `}
+                >
+                    {item.name}
+                </div>
+                ))}
+            </div>
+            </div>
         ))}
-      </div>
+        </div>
     );
   }
 };
