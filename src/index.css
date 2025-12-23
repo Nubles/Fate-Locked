@@ -1,9 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom scrollbar if needed, or OSRS font import could go here */
-body {
-    background-color: #121212;
-    color: #e5e7eb;
-}

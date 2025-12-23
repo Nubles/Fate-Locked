@@ -1,36 +1,30 @@
-# OSRS Fate-Locked UIM Tracker
+# Fate-Locked UIM
 
-A single-page web application to track progress for the OSR Fate-Locked Ultimate Ironman game mode.
+A unique OSRS gamemode tracker featuring custom rules, RNG-based progression, and "Fate" bad luck protection.
 
 ## Features
-- **RNG Rolls**: Roll for keys via Quests, Combat Achievements, Level Ups, and Collection Logs.
-- **Pity System**: Bad luck protection ensures you get a key eventually.
-- **Gacha Unlocks**: Spend keys to unlock Gear Slots, Skills, or Regions.
-- **Persistence**: Your progress is saved automatically to your browser's local storage.
-- **Dark Mode**: Themed after OSRS interface.
+
+- **Fate Points:** Bad luck protection that guarantees a key after enough failed rolls.
+- **Chaos Keys:** Special currency to unlock random items from the void.
+- **Omni-Keys:** Rare drops that allow you to choose your reward.
+- **Void Altar:** Perform rituals to influence your RNG or transmute keys.
+- **Progress Tracking:** Track equipment, skills, regions, and more.
 
 ## Development
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Run development server:
-   ```bash
-   npm run dev
-   ```
+This project is built with React, TypeScript, Vite, and Tailwind CSS.
 
-## Deployment
+### Setup
 
-### GitHub Pages (Manual)
-1. Run `npm run build`
-2. Push the contents of `dist/` to a `gh-pages` branch, or configure GitHub Pages to serve from `dist/` if possible (usually requires a custom action).
+```bash
+npm install
+npm run dev
+```
 
-### GitHub Pages (Automated Action)
-This repository includes a GitHub Action `.github/workflows/deploy.yml` that will automatically build and deploy to GitHub Pages whenever you push to `main` (or `master`).
+### Deployment
 
-1. Go to your repository **Settings** > **Pages**.
-2. Under "Build and deployment", select **GitHub Actions** as the source.
-3. Push your code to `main`. The action will run and deploy your site.
+To deploy to GitHub Pages:
 
-**Note:** If your repository is not at the root domain (e.g. `username.github.io/repo-name`), ensure `vite.config.js` has the correct `base` path set. Currently it is set to `./` which should work for most cases.
+```bash
+npm run deploy
+```
