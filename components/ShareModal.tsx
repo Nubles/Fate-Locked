@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { X, Copy, Download, Trophy, Map, Shield, Sparkles, Skull, Palette, Crown, Scroll, Hash, Activity, Zap, Home, Store, Gamepad2, Package, BookOpen } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import cubesBg from '../assets/cubes.png';
 import { GameState } from '../types';
 import { EQUIPMENT_SLOTS, EQUIPMENT_TIER_MAX, SKILLS_LIST, REGIONS_LIST, REGION_GROUPS, SLOT_CONFIG, BOSSES_LIST, MINIGAMES_LIST } from '../constants';
 
@@ -187,7 +188,10 @@ Progression: ${progressPercent}% | Total Level: ${totalLevel}
         >
             {/* Background Texture */}
             <div className={`absolute inset-0 bg-gradient-to-br ${ts.gradient} pointer-events-none`}></div>
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.07] pointer-events-none"></div>
+            <div
+              className="absolute inset-0 opacity-[0.07] pointer-events-none"
+              style={{ backgroundImage: `url(${cubesBg})` }}
+            ></div>
 
             {/* HEADER */}
             <div className={`relative z-10 flex justify-between items-center p-6 border-b ${ts.deco}`}>
