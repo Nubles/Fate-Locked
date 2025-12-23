@@ -3,6 +3,8 @@ import React from 'react';
 import { TableType } from '../types';
 import { Shield, Map, Hammer, Lock, Dices, Sparkles, Footprints, Zap, Gamepad2, HelpCircle, Skull, Home, Coins, Package, Dna } from 'lucide-react';
 import { EQUIPMENT_SLOTS, SKILLS_LIST, REGIONS_LIST, MOBILITY_LIST, ARCANA_LIST, MINIGAMES_LIST, BOSSES_LIST, POH_LIST, MERCHANTS_LIST, STORAGE_LIST } from '../constants';
+import cubesBg from '../assets/cubes.png';
+import diagmondsBg from '../assets/diagmonds-light.png';
 
 interface GachaSectionProps {
   keys: number;
@@ -89,7 +91,10 @@ const SpendCard: React.FC<SpendCardProps> = ({
       `}
     >
       {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] pointer-events-none"></div>
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: `url(${cubesBg})` }}
+      ></div>
 
       {/* Header: Icon + Price */}
       <div className={`flex justify-between items-start w-full relative z-10 mb-2 transition-opacity duration-300 ${isLocked ? 'opacity-20' : 'opacity-100'}`}>
@@ -181,7 +186,10 @@ export const GachaSection: React.FC<GachaSectionProps> = ({ keys, chaosKeys, onU
                 onClick={onChaosUnlock}
                 className="w-full p-4 rounded-lg border border-red-500/50 bg-gradient-to-r from-red-900/20 via-purple-900/20 to-red-900/20 flex items-center justify-between group hover:border-red-400 transition-all shadow-[0_0_15px_rgba(220,38,38,0.15)] relative overflow-hidden"
             >
-                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-10"></div>
+                <div
+                  className="absolute inset-0 opacity-10"
+                  style={{ backgroundImage: `url(${diagmondsBg})` }}
+                ></div>
                 <div className="flex items-center gap-3 relative z-10">
                     <div className="p-2 bg-red-500/20 rounded-full border border-red-500/50 animate-pulse">
                         <Dna className="text-red-400 w-6 h-6" />
